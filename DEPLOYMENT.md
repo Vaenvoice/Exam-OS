@@ -1,55 +1,62 @@
 # 🚀 Deployment Guide — Exam-OS
 
 This guide walks you through deploying the **Online Examination System** for free using:
-- **[Neon.tech](https://neon.tech/)** — Free PostgreSQL database (never sleeps)
-- **[Render](https://render.com/)** — Free backend hosting (Node.js)
+- **[Render](https://render.com/)** — Free PostgreSQL database (**1 GB**) + backend hosting (Node.js)
 - **[Vercel](https://vercel.com/)** — Free frontend hosting (React/Vite)
 
 The backend includes a **self-ping every 14 minutes** to prevent Render's free tier from sleeping.
 
----
-
-## Step 1: Set Up the Database (Neon.tech)
-
-1. Go to [neon.tech](https://neon.tech/) and **sign up** (free).
-2. Click **"New Project"**, give it a name (e.g., `exam-os`), choose a region.
-3. Once created, go to **Connection Details** and copy your **Connection String** — it looks like:
-   ```
-   postgresql://user:password@ep-xxxxx.us-east-1.aws.neon.tech/neondb?sslmode=require
-   ```
-4. Keep this safe — you'll need it in the next step.
+> ⚠️ **Note:** Render's free PostgreSQL database **expires after 90 days**. You'll need to recreate it, or upgrade to a paid plan for persistence beyond that.
 
 ---
 
-## Step 2: Deploy the Backend (Render)
+## Step 1: Create the Database on Render
 
-1. Go to [render.com](https://render.com/) and **sign up** (free).
-2. Click **"New +" → "Web Service"**.
-3. Connect your GitHub account and select the **`Vaenvoice/Exam-OS`** repository.
-4. Configure:
+1. Go to [render.com](https://render.com/) and **sign up / log in** (free).
+2. Click **"New +" → "PostgreSQL"**.
+3. Configure:
+   | Setting | Value |
+   |---|---|
+   | **Name** | `exam-os-db` |
+   | **Region** | Singapore (or closest to you) |
+   | **Plan** | `Free` |
+4. Click **"Create Database"** and wait for it to be ready.
+5. On the database info page, copy the **"Internal Database URL"** — it looks like:
+   ```
+   postgresql://exam_os_db_user:xxxx@dpg-xxxxx-a/exam_os_db
+   ```
+   > Use **Internal URL** since the backend will be on the same Render network.
+
+---
+
+## Step 2: Deploy the Backend (Render Web Service)
+
+1. Click **"New +" → "Web Service"**.
+2. Connect your GitHub account and select the **`Vaenvoice/Exam-OS`** repository.
+3. Configure:
    | Setting | Value |
    |---|---|
    | **Name** | `exam-os-backend` |
-   | **Region** | Singapore (or closest to you) |
+   | **Region** | **Same as your database** ✅ |
    | **Root Directory** | `backend` |
    | **Environment** | `Node` |
    | **Build Command** | `npm install` |
    | **Start Command** | `node server.js` |
    | **Plan** | `Free` |
 
-5. Under **Environment Variables**, add:
+4. Under **Environment Variables**, add:
    | Key | Value |
    |---|---|
    | `NODE_ENV` | `production` |
-   | `DB_URL` | *(your Neon connection string)* |
-   | `JWT_SECRET` | *(a strong random string, e.g., `openssl rand -hex 32`)* |
+   | `DATABASE_URL` | *(paste your Render Internal Database URL from Step 1)* |
+   | `JWT_SECRET` | *(a strong random string — generate one [here](https://generate-secret.vercel.app/32))* |
    | `JWT_EXPIRE` | `24h` |
    | `COOKIE_EXPIRE` | `30` |
 
-   > **Note:** `RENDER_EXTERNAL_URL` is automatically set by Render — this activates the self-ping.
+   > `RENDER_EXTERNAL_URL` is **automatically set by Render** — this activates the self-ping to keep the service warm.
 
-6. Click **"Create Web Service"**. Wait for the build to finish.
-7. Copy your backend URL — it'll look like: `https://exam-os-backend.onrender.com`
+5. Click **"Create Web Service"**. Wait for the first build to complete.
+6. Copy your backend URL — it looks like: `https://exam-os-backend.onrender.com`
 
 ---
 
@@ -72,42 +79,45 @@ The backend includes a **self-ping every 14 minutes** to prevent Render's free t
    | `VITE_API_BASE_URL` | `https://exam-os-backend.onrender.com/api` |
 
 6. Click **"Deploy"**. Wait for it to finish.
-7. Your app will be live at: `https://exam-os.vercel.app` (or similar)
+7. Your frontend will be live at: `https://exam-os.vercel.app` (or similar)
 
 ---
 
-## Step 4: Optional — External Monitor (Extra Safety)
+## Step 4: Keep-Alive — External Monitor (Recommended)
 
-Even with self-ping, it's good practice to add an external monitor for free:
+The backend self-pings itself every 14 min, but adding an **external monitor** gives extra protection and alerts you if the service goes down.
 
-### Option A: [UptimeRobot](https://uptimerobot.com/) (Recommended)
+### [UptimeRobot](https://uptimerobot.com/) — Free & Recommended
 1. Sign up at [uptimerobot.com](https://uptimerobot.com/) (free, 50 monitors).
-2. Add a new **HTTP(S) monitor**:
-   - URL: `https://exam-os-backend.onrender.com/api/health`
-   - Check interval: **5 minutes**
-3. UptimeRobot will ping your service every 5 minutes — 100% uptime guaranteed!
+2. Click **"Add New Monitor"**:
+   - **Monitor Type**: `HTTP(S)`
+   - **Friendly Name**: `Exam-OS Backend`
+   - **URL**: `https://exam-os-backend.onrender.com/api/health`
+   - **Monitoring Interval**: `5 minutes`
+3. Done! UptimeRobot will ping your service every 5 minutes.
 
-### Option B: [Cron-job.org](https://cron-job.org/)
+### Alternative: [Cron-job.org](https://cron-job.org/)
 1. Sign up at [cron-job.org](https://cron-job.org/) (free).
 2. Create a new cron job:
-   - URL: `https://exam-os-backend.onrender.com/api/health`
-   - Schedule: **Every 10 minutes**
+   - **URL**: `https://exam-os-backend.onrender.com/api/health`
+   - **Schedule**: Every 10 minutes
 
 ---
 
-## Summary
+## 📋 Summary
 
-| Component | Platform | URL |
+| Component | Platform | Storage / Notes |
 |---|---|---|
-| Database | Neon.tech | Managed by backend |
-| Backend API | Render | `https://exam-os-backend.onrender.com` |
-| Frontend | Vercel | `https://exam-os.vercel.app` |
+| Database | Render PostgreSQL | **1 GB free** (expires 90 days) |
+| Backend API | Render Web Service | Free, stays warm via self-ping |
+| Frontend | Vercel | Free, always on |
 | Health Check | — | `GET /api/health` |
 
 ---
 
 ## ⚠️ Important Notes
 
-- **Render free tier**: Your backend may cold-start the first time (takes ~30s). After that, the self-ping keeps it warm.
-- **Neon.tech free tier**: 0.5 GB storage, auto-pauses the *compute* on inactivity but data is preserved.
-- **Secret management**: Never commit real `.env` files. Use Render and Vercel's environment variable dashboards.
+- **Render DB expiry**: Free PostgreSQL databases are deleted after 90 days. Export your data before the deadline from the Render dashboard.
+- **Same region**: Deploy the backend Web Service in the **same region** as the database to use the Internal URL and reduce latency.
+- **Cold start**: The first request after a long period may take ~15–30s to wake up. The self-ping + UptimeRobot prevents this for regular traffic.
+- **Secrets**: Never commit real `.env` files. Always use the environment variable dashboards on Render and Vercel.
