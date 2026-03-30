@@ -102,7 +102,7 @@ npm install
 
 # Frontend
 cd ../frontend
-npm install
+npm install --legacy-peer-deps
 ```
 
 ### 5. Start the Application
