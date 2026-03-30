@@ -66,7 +66,7 @@ The backend includes a **self-ping every 14 minutes** to prevent Render's free t
    |---|---|
    | **Framework Preset** | `Vite` |
    | **Root Directory** | `frontend` |
-   | **Install Command** | `npm install` (Default) |
+   | **Install Command** | `npm install --legacy-peer-deps` ✅ |
    | **Build Command** | `npm run build` |
    | **Output Directory** | `dist` |
 
