@@ -1,0 +1,16 @@
+services:
+  database_v2:
+    image: postgres:15-alpine
+    container_name: exam-db-fresh
+    restart: always
+    environment:
+      POSTGRES_USER: exam_admin
+      POSTGRES_PASSWORD: exam_password_123
+      POSTGRES_DB: exam_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - exam_data_v2:/var/lib/postgresql/data
+
+volumes:
+  exam_data_v2:
