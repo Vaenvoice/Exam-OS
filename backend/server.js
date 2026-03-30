@@ -45,6 +45,28 @@ app.use('/api/exams', exams);
 app.use('/api/users', users);
 app.use('/api/bulk', bulk);
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
+// Self-ping to keep service alive (if RENDER_EXTERNAL_URL is set)
+const SELF_URL = process.env.RENDER_EXTERNAL_URL;
+if (SELF_URL) {
+  const https = require('https');
+  setInterval(() => {
+    https.get(`${SELF_URL}/api/health`, (res) => {
+      if (res.statusCode === 200) {
+        console.log('Self-ping successful: Service kept alive');
+      } else {
+        console.warn(`Self-ping warning: Status code ${res.statusCode}`);
+      }
+    }).on('error', (err) => {
+      console.error('Self-ping error:', err.message);
+    });
+  }, 14 * 60 * 1000); // 14 minutes
+}
+
 const PORT = process.env.PORT || 5000;
 
 const server = app.listen(PORT, () => {
