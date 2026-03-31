@@ -73,7 +73,7 @@ The backend includes a **self-ping every 14 minutes** to prevent Render's free t
 5. Under **Environment Variables**, add:
    | Key | Value |
    |---|---|
-   | `VITE_API_BASE_URL` | `https://exam-os-backend.onrender.com/api` |
+   | `VITE_API_BASE_URL` | `https://exam-os-backend.onrender.com` |
 
 6. Click **"Deploy"**. Wait for it to finish.
 7. Your frontend will be live at: `https://exam-os.vercel.app` (or similar).
