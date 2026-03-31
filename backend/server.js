@@ -43,14 +43,27 @@ app.use('/api/exams', exams);
 app.use('/api/users', users);
 app.use('/api/bulk', bulk);
 
-// Health check endpoint
+// Health check endpoints
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Exam-OS API is running', timestamp: new Date().toISOString() });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
 // Self-ping to keep service alive (if RENDER_EXTERNAL_URL is set)
-const SELF_URL = process.env.RENDER_EXTERNAL_URL;
+let SELF_URL = process.env.RENDER_EXTERNAL_URL;
 if (SELF_URL) {
+  // Remove trailing slash if present
+  if (SELF_URL.endsWith('/')) {
+    SELF_URL = SELF_URL.slice(0, -1);
+  }
+  
   const https = require('https');
   setInterval(() => {
     https.get(`${SELF_URL}/api/health`, (res) => {
