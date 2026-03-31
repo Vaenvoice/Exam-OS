@@ -12,9 +12,7 @@ dotenv.config();
 
 // Connect and sync DB
 syncDB().then(() => {
-  if (process.env.NODE_ENV === 'development') {
-    seedData();
-  }
+  seedData();
 });
 
 const app = express();

@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
+// Set default base URL for API calls
+axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
+
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
