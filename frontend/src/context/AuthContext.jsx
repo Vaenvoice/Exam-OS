@@ -2,7 +2,9 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
 // Set default base URL for API calls
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '';
+const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+// If the URL ends with /api, we strip it because individual calls already include /api/
+axios.defaults.baseURL = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
 
 const AuthContext = createContext();
 
