@@ -3,8 +3,8 @@ import axios from 'axios';
 
 // Set default base URL for API calls
 const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-// If the URL ends with /api, we strip it because individual calls already include /api/
-axios.defaults.baseURL = baseUrl.endsWith('/api') ? baseUrl.slice(0, -4) : baseUrl;
+// Use regex to strip /api or /api/ from the end to prevent double prefixing
+axios.defaults.baseURL = baseUrl.replace(/\/api\/?$/, '');
 
 const AuthContext = createContext();
 
