@@ -35,6 +35,7 @@ function App() {
       <Router>
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            <Route index element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             
@@ -85,7 +86,7 @@ function App() {
               </ProtectedRoute>
             } />
 
-            <Route path="/" element={<Navigate to="/login" />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </Suspense>
       </Router>
