@@ -23,8 +23,12 @@ const StudentExams = () => {
             const now = new Date();
             const start = exam.startWindow ? new Date(exam.startWindow) : null;
             const end = exam.endWindow ? new Date(exam.endWindow) : null;
-            const isStarted = !start || now >= start;
-            const isEnded = end && now > end;
+            
+            const isStartValid = start && !isNaN(start.getTime());
+            const isEndValid = end && !isNaN(end.getTime());
+            
+            const isStarted = !isStartValid || now >= start;
+            const isEnded = isEndValid && now > end;
             const isDisabled = !isStarted || isEnded;
 
             return (
@@ -36,12 +40,12 @@ const StudentExams = () => {
                   <span style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem'}}>
                     <Clock size={16} /> <strong>Duration:</strong> {exam.duration} mins
                   </span>
-                  {start && (
+                  {isStartValid && (
                     <span style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: !isStarted ? '#f59e0b' : 'inherit'}}>
                       <Play size={16} /> <strong>Starts:</strong> {start.toLocaleString()}
                     </span>
                   )}
-                  {end && (
+                  {isEndValid && (
                     <span style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: isEnded ? '#ef4444' : 'inherit'}}>
                       <ChevronRight size={16} /> <strong>Ends:</strong> {end.toLocaleString()}
                     </span>

@@ -70,14 +70,16 @@ const TakeExam = () => {
           // Cap timeLeft by endWindow if it exists
           if (examData.endWindow) {
             const endWindowTime = new Date(examData.endWindow).getTime();
-            const endWindowRemaining = Math.floor((endWindowTime - now) / 1000);
-            if (endWindowRemaining >= 0 && endWindowRemaining < timeLeftVal) {
-              console.log(`[DEBUG] Capping timeLeft by endWindow: ${endWindowRemaining}s instead of ${timeLeftVal}s`);
-              timeLeftVal = endWindowRemaining;
+            if (!isNaN(endWindowTime)) {
+              const endWindowRemaining = Math.floor((endWindowTime - now) / 1000);
+              if (endWindowRemaining >= 0 && endWindowRemaining < timeLeftVal) {
+                console.log(`[DEBUG] Capping timeLeft by endWindow: ${endWindowRemaining}s instead of ${timeLeftVal}s`);
+                timeLeftVal = endWindowRemaining;
+              }
             }
           }
           
-          setTimeLeft(timeLeftVal);
+          setTimeLeft(isNaN(timeLeftVal) ? examData.duration * 60 : timeLeftVal);
 
         } catch (err) {
           // No draft found, start fresh
@@ -86,12 +88,14 @@ const TakeExam = () => {
           
           if (examData.endWindow) {
             const endWindowTime = new Date(examData.endWindow).getTime();
-            const endWindowRemaining = Math.floor((endWindowTime - now) / 1000);
-            if (endWindowRemaining >= 0 && endWindowRemaining < timeLeftVal) {
-              timeLeftVal = endWindowRemaining;
+            if (!isNaN(endWindowTime)) {
+              const endWindowRemaining = Math.floor((endWindowTime - now) / 1000);
+              if (endWindowRemaining >= 0 && endWindowRemaining < timeLeftVal) {
+                timeLeftVal = endWindowRemaining;
+              }
             }
           }
-          setTimeLeft(timeLeftVal);
+          setTimeLeft(isNaN(timeLeftVal) ? examData.duration * 60 : timeLeftVal);
         }
 
         // Create initial autosave to record start time

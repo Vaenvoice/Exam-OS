@@ -30,6 +30,7 @@ const EditExam = () => {
         const formatForInput = (d) => {
           if (!d) return '';
           const date = new Date(d);
+          if (isNaN(date.getTime())) return '';
           const year = date.getFullYear();
           const month = String(date.getMonth() + 1).padStart(2, '0');
           const day = String(date.getDate()).padStart(2, '0');
@@ -55,15 +56,21 @@ const EditExam = () => {
     };
     fetchExam();
   }, [id, navigate, basePath]);
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     try {
+      const toUTC = (dateStr) => {
+        if (!dateStr) return null;
+        const date = new Date(dateStr);
+        return isNaN(date.getTime()) ? null : date.toISOString();
+      };
+      
       const dataToSubmit = {
         ...formData,
-        startWindow: formData.startWindow ? new Date(formData.startWindow).toISOString() : null,
-        endWindow: formData.endWindow ? new Date(formData.endWindow).toISOString() : null
+        startWindow: toUTC(formData.startWindow),
+        endWindow: toUTC(formData.endWindow)
       };
       await axios.put(`/api/exams/${id}`, dataToSubmit);
       navigate(`${basePath}/exams`);

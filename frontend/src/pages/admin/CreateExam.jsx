@@ -18,10 +18,16 @@ const CreateExam = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const toUTC = (dateStr) => {
+        if (!dateStr) return null;
+        const date = new Date(dateStr);
+        return isNaN(date.getTime()) ? null : date.toISOString();
+      };
+      
       const dataToSubmit = {
         ...formData,
-        startWindow: formData.startWindow ? new Date(formData.startWindow).toISOString() : null,
-        endWindow: formData.endWindow ? new Date(formData.endWindow).toISOString() : null
+        startWindow: toUTC(formData.startWindow),
+        endWindow: toUTC(formData.endWindow)
       };
       const res = await axios.post('/api/exams', dataToSubmit);
       const examId = res.data.data.id;

@@ -68,29 +68,34 @@ exports.getExam = async (req, res) => {
     // Check scheduling for students
     if (req.user.role === 'student') {
       const now = new Date();
-      console.log(`[DEBUG] Exam Time Check:`);
-      console.log(`  - Current Time (now): ${now.toISOString()} (${now.toLocaleString()})`);
-      
-      if (exam.startWindow) {
-        const start = new Date(exam.startWindow);
-        console.log(`  - Start Window: ${start.toISOString()} (${start.toLocaleString()})`);
-        if (now < start) {
-          return res.status(403).json({ 
-            success: false, 
-            message: `Exam has not started yet. Starts at: ${start.toLocaleString()}` 
-          });
+      try {
+        console.log(`[DEBUG] Exam Time Check:`);
+        console.log(`  - Current Time (now): ${now.toISOString()} (${now.toLocaleString()})`);
+        
+        if (exam.startWindow) {
+          const start = new Date(exam.startWindow);
+          console.log(`  - Start Window: ${start.toISOString()} (${start.toLocaleString()})`);
+          if (now < start) {
+            return res.status(403).json({ 
+              success: false, 
+              message: `Exam has not started yet. Starts at: ${start.toLocaleString()}` 
+            });
+          }
         }
-      }
-      
-      if (exam.endWindow) {
-        const end = new Date(exam.endWindow);
-        console.log(`  - End Window: ${end.toISOString()} (${end.toLocaleString()})`);
-        if (now > end) {
-          return res.status(403).json({ 
-            success: false, 
-            message: 'Exam has already ended' 
-          });
+        
+        if (exam.endWindow) {
+          const end = new Date(exam.endWindow);
+          console.log(`  - End Window: ${end.toISOString()} (${end.toLocaleString()})`);
+          if (now > end) {
+            return res.status(403).json({ 
+              success: false, 
+              message: 'Exam has already ended' 
+            });
+          }
         }
+      } catch (logErr) {
+        console.error(`[ERROR] Time Check Failed:`, logErr);
+        // Continue if logging fails, safety check
       }
     }
 
