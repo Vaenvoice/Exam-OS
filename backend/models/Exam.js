@@ -34,6 +34,12 @@ const Exam = sequelize.define('Exam', {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   }
+}, {
+  indexes: [
+    {
+      fields: ['creatorId']
+    }
+  ]
 });
 
 module.exports = Exam;

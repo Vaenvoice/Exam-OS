@@ -1,8 +1,10 @@
 const express = require('express');
+require('express-async-errors');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression');
 const path = require('path');
 const { syncDB } = require('./models');
 const seedData = require('./db/seed');
@@ -30,6 +32,9 @@ app.use(helmet());
 
 // Enable CORS
 app.use(cors());
+
+// Compression
+app.use(compression());
 
 // Route files
 const auth = require('./routes/auth');

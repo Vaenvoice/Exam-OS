@@ -35,6 +35,13 @@ const Result = sequelize.define('Result', {
     type: DataTypes.JSON,
     allowNull: true
   }
+}, {
+  indexes: [
+    { fields: ['UserId'] },
+    { fields: ['ExamId'] },
+    { fields: ['submittedAt'] },
+    { fields: ['isApproved'] }
+  ]
 });
 
 module.exports = Result;

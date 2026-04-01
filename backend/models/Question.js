@@ -39,6 +39,12 @@ const Question = sequelize.define('Question', {
     type: DataTypes.STRING,
     allowNull: true
   }
+}, {
+  indexes: [
+    {
+      fields: ['category']
+    }
+  ]
 });
 
 module.exports = Question;

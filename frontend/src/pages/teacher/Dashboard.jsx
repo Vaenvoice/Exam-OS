@@ -1,31 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { BookOpen, Users, FileText, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useDashboardStats } from '../../hooks/useExamQueries';
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
-  const [stats, setStats] = useState({
+  const { data: statsData, isLoading, error } = useDashboardStats();
+
+  const stats = statsData || {
     exams: 0,
     results: 0,
     students: 0
-  });
+  };
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await axios.get('/api/exams/dashboard/stats');
-        setStats({
-          exams: res.data.data.exams,
-          results: res.data.data.results,
-          students: res.data.data.students
-        });
-      } catch (err) {
-        console.error('Error fetching stats', err);
-      }
-    };
-    fetchStats();
-  }, []);
+  if (isLoading) return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+      <div className="animate-spin" style={{ width: '32px', height: '32px', border: '3px solid #f3f3f3', borderTop: '3px solid #3b82f6', borderRadius: '50%' }}></div>
+    </div>
+  );
 
   const statCards = [
     { label: 'Total Exams', value: stats.exams, icon: <BookOpen className="text-primary" />, color: 'blue' },
