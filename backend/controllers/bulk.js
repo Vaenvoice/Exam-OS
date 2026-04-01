@@ -1,6 +1,6 @@
 const { Question, User, Exam, Result } = require('../models');
 const csv = require('csv-parser');
-const { Parser } = require('json2csv');
+const { Parser, parse } = require('json2csv');
 const fs = require('fs');
 const path = require('path');
 
@@ -62,8 +62,13 @@ exports.exportQuestions = async (req, res) => {
 
     const fields = ['questionText', 'optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer', 'category'];
     const opts = { fields };
-    const parser = new Parser(opts);
-    const csvData = parser.parse(questions);
+    let csvData;
+    if (Parser) {
+      const parser = new Parser(opts);
+      csvData = parser.parse(questions);
+    } else {
+      csvData = parse(questions, opts);
+    }
 
     res.header('Content-Type', 'text/csv');
     res.attachment('questions.csv');
@@ -145,8 +150,13 @@ exports.exportResults = async (req, res) => {
 
     const fields = ['Exam', 'Student', 'Email', 'Score', 'Total', 'Percentage', 'Date', 'Approved', 'IPAddress'];
     const opts = { fields };
-    const parser = new Parser(opts);
-    const csvData = parser.parse(flattened);
+    let csvData;
+    if (Parser) {
+      const parser = new Parser(opts);
+      csvData = parser.parse(flattened);
+    } else {
+      csvData = parse(flattened, opts);
+    }
 
     res.header('Content-Type', 'text/csv');
     res.attachment('exam_results.csv');

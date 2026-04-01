@@ -18,7 +18,12 @@ const CreateExam = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('/api/exams', formData);
+      const dataToSubmit = {
+        ...formData,
+        startWindow: formData.startWindow ? new Date(formData.startWindow).toISOString() : null,
+        endWindow: formData.endWindow ? new Date(formData.endWindow).toISOString() : null
+      };
+      const res = await axios.post('/api/exams', dataToSubmit);
       const examId = res.data.data.id;
       const basePath = user.role === 'admin' ? '/admin' : '/teacher';
       navigate(`${basePath}/exams/${examId}/questions`);

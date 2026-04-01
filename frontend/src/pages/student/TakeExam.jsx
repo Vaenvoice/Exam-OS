@@ -48,24 +48,50 @@ const TakeExam = () => {
         // Try to recover draft answers
         try {
           const draftRes = await axios.get(`/api/exams/${id}/draft`);
+          
+          let timeLeftVal;
+          const now = Date.now();
+          
           if (draftRes.data.data && draftRes.data.data.answers) {
             setAnswers(draftRes.data.data.answers);
             setTabSwitchCount(draftRes.data.data.tabSwitchCount || 0);
             
             // Calculate remaining time from draft startedAt
             if (draftRes.data.data.startedAt) {
-              const elapsedSecs = Math.floor((Date.now() - new Date(draftRes.data.data.startedAt).getTime()) / 1000);
-              const remainingTime = Math.max(0, examData.duration * 60 - elapsedSecs);
-              setTimeLeft(remainingTime);
+              const elapsedSecs = Math.floor((now - new Date(draftRes.data.data.startedAt).getTime()) / 1000);
+              timeLeftVal = Math.max(0, examData.duration * 60 - elapsedSecs);
             } else {
-              setTimeLeft(examData.duration * 60);
+              timeLeftVal = examData.duration * 60;
             }
           } else {
-            setTimeLeft(examData.duration * 60);
+            timeLeftVal = examData.duration * 60;
           }
-        } catch {
+
+          // Cap timeLeft by endWindow if it exists
+          if (examData.endWindow) {
+            const endWindowTime = new Date(examData.endWindow).getTime();
+            const endWindowRemaining = Math.floor((endWindowTime - now) / 1000);
+            if (endWindowRemaining >= 0 && endWindowRemaining < timeLeftVal) {
+              console.log(`[DEBUG] Capping timeLeft by endWindow: ${endWindowRemaining}s instead of ${timeLeftVal}s`);
+              timeLeftVal = endWindowRemaining;
+            }
+          }
+          
+          setTimeLeft(timeLeftVal);
+
+        } catch (err) {
           // No draft found, start fresh
-          setTimeLeft(examData.duration * 60);
+          let timeLeftVal = examData.duration * 60;
+          const now = Date.now();
+          
+          if (examData.endWindow) {
+            const endWindowTime = new Date(examData.endWindow).getTime();
+            const endWindowRemaining = Math.floor((endWindowTime - now) / 1000);
+            if (endWindowRemaining >= 0 && endWindowRemaining < timeLeftVal) {
+              timeLeftVal = endWindowRemaining;
+            }
+          }
+          setTimeLeft(timeLeftVal);
         }
 
         // Create initial autosave to record start time

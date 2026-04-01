@@ -26,8 +26,17 @@ const EditExam = () => {
       try {
         const res = await axios.get(`/api/exams/${id}`);
         const { title, description, duration, startWindow, endWindow, randomizeQuestions } = res.data.data;
-        // Format dates for datetime-local input (YYYY-MM-DDThh:mm)
-        const formatForInput = (d) => d ? new Date(d).toISOString().slice(0, 16) : '';
+        // Format dates for datetime-local input (Local time YYYY-MM-DDThh:mm)
+        const formatForInput = (d) => {
+          if (!d) return '';
+          const date = new Date(d);
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          return `${year}-${month}-${day}T${hours}:${minutes}`;
+        };
         
         setFormData({ 
           title, 
@@ -51,7 +60,12 @@ const EditExam = () => {
     e.preventDefault();
     setSaving(true);
     try {
-      await axios.put(`/api/exams/${id}`, formData);
+      const dataToSubmit = {
+        ...formData,
+        startWindow: formData.startWindow ? new Date(formData.startWindow).toISOString() : null,
+        endWindow: formData.endWindow ? new Date(formData.endWindow).toISOString() : null
+      };
+      await axios.put(`/api/exams/${id}`, dataToSubmit);
       navigate(`${basePath}/exams`);
     } catch (err) {
       alert(err.response?.data?.message || 'Failed to update exam');
