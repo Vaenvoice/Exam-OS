@@ -1,5 +1,4 @@
 const express = require('express');
-require('express-async-errors');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
