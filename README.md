@@ -1,5 +1,7 @@
 # 📝 Online Examination System (Exam-OS)
 
+[**Live Demo**](https://exam-os-fawn.vercel.app/login)
+
 A full-stack web application for managing online examinations with role-based access for **Admins**, **Teachers**, and **Students**.
 
 ## ✨ Features
@@ -32,6 +34,35 @@ A full-stack web application for managing online examinations with role-based ac
 | Auth       | JWT (JSON Web Tokens)                             |
 | UI         | Lucide React Icons, Recharts, React Quill         |
 | Styling    | Vanilla CSS                                       |
+
+## 🗺️ System Architecture
+
+```mermaid
+graph TD
+    subgraph Client ["Frontend (React/Vite)"]
+        UI["User Interface"]
+        State["TanStack Query / React Hooks"]
+        Router["React Router"]
+    end
+
+    subgraph Server ["Backend (Node/Express)"]
+        API["REST API Routes"]
+        Auth["JWT Middleware"]
+        Ctrl["Controllers"]
+        Schema["Sequelize Models"]
+    end
+
+    subgraph Database ["PostgreSQL"]
+        DB[("(Tables: Users, Exams, Questions, Results, etc.)")]
+    end
+
+    UI <--> State
+    State <--> API
+    API <--> Auth
+    Auth <--> Ctrl
+    Ctrl <--> Schema
+    Schema <--> DB
+```
 
 ## 📁 Project Structure
 
