@@ -31,15 +31,30 @@ Exam.hasMany(DraftAnswer, { onDelete: 'CASCADE' });
 DraftAnswer.belongsTo(Exam);
 
 const syncDB = async () => {
+  const isProd = process.env.NODE_ENV === 'production';
+  const forceAlter = process.env.DB_SYNC_ALTER === 'true';
+  const shouldAlter = !isProd || forceAlter;
+
   let retries = 5;
   while (retries > 0) {
     try {
-      await sequelize.sync({ alter: true });
+      if (shouldAlter) {
+        console.log(`Syncing database with alter: ${shouldAlter}...`);
+        await sequelize.sync({ alter: true });
+      } else {
+        console.log('Syncing database (basic)...');
+        await sequelize.sync();
+      }
       console.log('Database synced successfully');
       break;
     } catch (error) {
       console.error(`Error syncing database. ${retries} retries left...`, error.message);
       retries -= 1;
+      if (retries === 0) {
+        console.error('Max retries reached. Database sync failed.');
+        // In production, we might want to throw here to crash the process
+        if (isProd) throw error;
+      }
       await new Promise(res => setTimeout(res, 5000));
     }
   }

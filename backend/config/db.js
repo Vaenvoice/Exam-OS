@@ -13,14 +13,16 @@ if (process.env.DATABASE_URL) {
     dialectOptions: {
       ssl: {
         require: true,
-        rejectUnauthorized: false, // Required for Render's free Postgres
+        rejectUnauthorized: false,
       },
+      connectTimeout: 60000 // 60s for Neon cold starts
     },
     pool: {
-      max: 20,
-      min: 2,
-      acquire: 30000,
+      max: 10, // Lowered for Neon free tier (20 total connections allowed)
+      min: 0,
+      acquire: 60000,
       idle: 10000,
+      evict: 1000, // Check for idle connections every second
     },
   });
 } else {
@@ -35,8 +37,8 @@ if (process.env.DATABASE_URL) {
       dialect: 'postgres',
       logging: false,
       pool: {
-        max: 20,
-        min: 2,
+        max: 5,
+        min: 0,
         acquire: 30000,
         idle: 10000,
       },

@@ -60,6 +60,17 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Request timeout (30 seconds)
+app.use((req, res, next) => {
+  res.setTimeout(30000, () => {
+    console.warn(`Request timeout: ${req.method} ${req.url}`);
+    if (!res.headersSent) {
+      res.status(408).send('Request Timeout');
+    }
+  });
+  next();
+});
+
 // Self-ping to keep service alive (if RENDER_EXTERNAL_URL is set)
 let SELF_URL = process.env.RENDER_EXTERNAL_URL;
 if (SELF_URL) {
@@ -69,10 +80,13 @@ if (SELF_URL) {
   }
   
   const https = require('https');
+  const http = require('http');
+  const protocol = SELF_URL.startsWith('https') ? https : http;
+
   setInterval(() => {
-    https.get(`${SELF_URL}/api/health`, (res) => {
+    protocol.get(`${SELF_URL}/api/health`, (res) => {
       if (res.statusCode === 200) {
-        console.log('Self-ping successful: Service kept alive');
+        console.log(`Self-ping successful (${new Date().toLocaleTimeString()}): Service kept alive`);
       } else {
         console.warn(`Self-ping warning: Status code ${res.statusCode}`);
       }
@@ -90,7 +104,15 @@ const server = app.listen(PORT, () => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err, promise) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
-  // server.close(() => process.exit(1));
+  console.error(`FATAL ERROR (Unhandled Rejection): ${err.message}`);
+  if (err.stack) console.error(err.stack);
+  // Close server & exit process to allow orchestrator to restart
+  server.close(() => process.exit(1));
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error(`FATAL ERROR (Uncaught Exception): ${err.message}`);
+  if (err.stack) console.error(err.stack);
+  server.close(() => process.exit(1));
 });
