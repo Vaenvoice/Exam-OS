@@ -63,16 +63,6 @@ app.use('/api/exams', exams);
 app.use('/api/users', users);
 app.use('/api/bulk', bulk);
 
-// Request timeout (30 seconds)
-app.use((req, res, next) => {
-  res.setTimeout(30000, () => {
-    console.warn(`Request timeout: ${req.method} ${req.url}`);
-    if (!res.headersSent) {
-      res.status(408).send('Request Timeout');
-    }
-  });
-  next();
-});
 
 // Self-ping to keep service alive (if RENDER_EXTERNAL_URL is set)
 let SELF_URL = process.env.RENDER_EXTERNAL_URL;
@@ -101,8 +91,8 @@ if (SELF_URL) {
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[STARTUP] Server successfully listening on 0.0.0.0:${PORT}`);
+const server = app.listen(PORT, () => {
+  console.log(`[STARTUP] Server successfully listening on port ${PORT}`);
   console.log(`[STARTUP] Mode: ${process.env.NODE_ENV || 'development'}`);
 });
 

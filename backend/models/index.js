@@ -31,9 +31,7 @@ Exam.hasMany(DraftAnswer, { onDelete: 'CASCADE' });
 DraftAnswer.belongsTo(Exam);
 
 const syncDB = async () => {
-  const isProd = process.env.NODE_ENV === 'production';
-  const forceAlter = process.env.DB_SYNC_ALTER === 'true';
-  const shouldAlter = !isProd || forceAlter;
+  const shouldAlter = process.env.DB_SYNC_ALTER === 'true';
 
   let retries = 5;
   while (retries > 0) {
