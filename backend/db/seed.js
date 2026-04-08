@@ -2,21 +2,31 @@ const { User, Exam, Question, syncDB } = require('../models');
 
 const seedData = async () => {
   try {
-    // 1. Create Admin User
-    const admin = await User.findOne({ where: { email: 'admin@test.com' } });
+    // 1. Create or Update Admin User
+    let admin = await User.findOne({ where: { email: 'admin@test.com' } });
     if (!admin) {
-      await User.create({
+      admin = await User.create({
         username: 'Admin User',
         email: 'admin@test.com',
         password: 'adminpassword123',
         role: 'admin',
         isApproved: true
       });
-      console.log('Admin user created: admin@test.com / adminpassword123');
-    } else if (!admin.isApproved) {
-      admin.isApproved = true;
-      await admin.save();
-      console.log('Existing admin user approved');
+      console.log('[SEED] Admin user created: admin@test.com / adminpassword123');
+    } else {
+      // Ensure existing admin is approved
+      if (!admin.isApproved) {
+        admin.isApproved = true;
+        await admin.save();
+        console.log('[SEED] Existing admin user approved');
+      }
+      // Note: We don't force-reset the password here for security, 
+      // but ensure the role is correct
+      if (admin.role !== 'admin') {
+        admin.role = 'admin';
+        await admin.save();
+        console.log('[SEED] Existing user promoted to admin');
+      }
     }
 
     // 2. Create Student User
