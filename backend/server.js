@@ -18,6 +18,22 @@ syncDB().then(() => {
 
 const app = express();
 
+console.log(`[STARTUP] Initializing Exam-OS Backend...`);
+console.log(`[STARTUP] Environment: ${process.env.NODE_ENV || 'development'}`);
+
+// Health check endpoints - MOVE TO TOP to ensure they respond immediately
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Exam-OS API is running (Basic Check)', timestamp: new Date().toISOString() });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Service Healthy', timestamp: new Date().toISOString() });
+});
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
+
 // Body parser
 app.use(express.json());
 
@@ -46,19 +62,6 @@ app.use('/api/auth', auth);
 app.use('/api/exams', exams);
 app.use('/api/users', users);
 app.use('/api/bulk', bulk);
-
-// Health check endpoints
-app.get('/', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Exam-OS API is running', timestamp: new Date().toISOString() });
-});
-
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
-
-app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
-});
 
 // Request timeout (30 seconds)
 app.use((req, res, next) => {
@@ -98,8 +101,9 @@ if (SELF_URL) {
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`[STARTUP] Server successfully listening on 0.0.0.0:${PORT}`);
+  console.log(`[STARTUP] Mode: ${process.env.NODE_ENV || 'development'}`);
 });
 
 // Handle unhandled promise rejections

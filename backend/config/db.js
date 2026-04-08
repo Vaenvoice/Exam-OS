@@ -18,11 +18,11 @@ if (process.env.DATABASE_URL) {
       connectTimeout: 60000 // 60s for Neon cold starts
     },
     pool: {
-      max: 10, // Lowered for Neon free tier (20 total connections allowed)
+      max: 10,
       min: 0,
-      acquire: 60000,
+      acquire: 90000, // Increased to 90s for problematic cold starts
       idle: 10000,
-      evict: 1000, // Check for idle connections every second
+      evict: 1000,
     },
   });
 } else {

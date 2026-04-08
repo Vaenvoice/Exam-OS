@@ -51,9 +51,7 @@ const syncDB = async () => {
       console.error(`Error syncing database. ${retries} retries left...`, error.message);
       retries -= 1;
       if (retries === 0) {
-        console.error('Max retries reached. Database sync failed.');
-        // In production, we might want to throw here to crash the process
-        if (isProd) throw error;
+        console.error('[CRITICAL] Max retries reached. Database sync failed. Server will continue to run, but DB features will fail.');
       }
       await new Promise(res => setTimeout(res, 5000));
     }
