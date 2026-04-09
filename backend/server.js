@@ -70,15 +70,18 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   });
 });
 
-// 6. SELF-PING (Refined)
-const SELF_URL = process.env.RENDER_EXTERNAL_URL;
+// 6. SELF-PING (Platform agnostic)
+const SELF_URL = process.env.EXTERNAL_URL || 
+                 process.env.RENDER_EXTERNAL_URL || 
+                 (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null) ||
+                 (process.env.KOYEB_PUBLIC_DOMAIN ? `https://${process.env.KOYEB_PUBLIC_DOMAIN}` : null);
 if (SELF_URL) {
   const protocol = SELF_URL.startsWith('https') ? require('https') : require('http');
   setInterval(() => {
     protocol.get(`${SELF_URL}/api/health`, (res) => {
-      if (res.statusCode !== 200) console.warn(`[PING] Warning: ${res.statusCode}`);
-    }).on('error', (err) => console.error('[PING] Error:', err.message));
-  }, 14 * 60 * 1000);
+      if (res.statusCode !== 200) console.warn(`[PING] Warning status: ${res.statusCode}`);
+    }).on('error', (err) => console.error('[PING] Error during self-ping:', err.message));
+  }, 14 * 60 * 1000); // 14 minutes
 }
 
 // 7. ROBUST ERROR HANDLING
