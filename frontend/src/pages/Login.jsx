@@ -26,7 +26,7 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="auth-page fade-in">
       <div className="auth-card">
         <div style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.75rem', fontWeight: '500' }}>
           <span style={{ color: '#4285F4' }}>E</span>

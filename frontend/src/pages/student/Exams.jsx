@@ -2,9 +2,23 @@ import React from 'react';
 import { Play, Clock, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useExams } from '../../hooks/useExamQueries';
+import { useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 
 const StudentExams = () => {
   const { data: exams = [], isLoading: loading, error } = useExams();
+  const queryClient = useQueryClient();
+
+  const prefetchExam = (examId) => {
+    queryClient.prefetchQuery({
+      queryKey: ['exam', examId],
+      queryFn: async () => {
+        const res = await axios.get(`/api/exams/${examId}`);
+        return res.data.data;
+      },
+      staleTime: 5 * 60 * 1000,
+    });
+  };
 
   return (
     <div className="exams-page">
@@ -61,7 +75,12 @@ const StudentExams = () => {
                     Expired
                   </button>
                 ) : (
-                  <Link to={`/student/exams/${exam.id}`} className="btn-primary" style={{display: 'flex', justifyContent: 'center', gap: '0.5rem'}}>
+                  <Link 
+                    to={`/student/exams/${exam.id}`} 
+                    className="btn-primary" 
+                    style={{display: 'flex', justifyContent: 'center', gap: '0.5rem'}}
+                    onMouseEnter={() => prefetchExam(exam.id)}
+                  >
                     Start Exam <ChevronRight size={18} />
                   </Link>
                 )}

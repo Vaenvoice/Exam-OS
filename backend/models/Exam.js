@@ -36,9 +36,9 @@ const Exam = sequelize.define('Exam', {
   }
 }, {
   indexes: [
-    {
-      fields: ['creatorId']
-    }
+    { fields: ['creatorId'] },
+    { fields: ['startWindow'] },
+    { fields: ['endWindow'] }
   ]
 });
 

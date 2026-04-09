@@ -25,5 +25,8 @@
     "react-router-dom": "^7.13.2",
     "recharts": "^3.8.1",
     "vite": "^8.0.3"
+  },
+  "devDependencies": {
+    "vite-plugin-compression": "^0.5.1"
   }
 }

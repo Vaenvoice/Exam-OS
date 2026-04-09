@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const responseTime = require('response-time');
 const path = require('path');
 
 const app = express();
@@ -29,7 +30,10 @@ app.get('/api/health', (req, res) => {
 app.use(express.json());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
+} else {
+  app.use(morgan('combined'));
 }
+app.use(responseTime());
 app.use(helmet({
   contentSecurityPolicy: false, // Avoid CSP issues during troubleshooting
 }));

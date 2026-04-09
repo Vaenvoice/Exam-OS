@@ -167,8 +167,26 @@ const TakeExam = () => {
     };
   }, []);
 
+  // Debounced autosave
+  const debouncedAutosave = useCallback(
+    (() => {
+      let timeout;
+      return (currentAnswers) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          autosaveMutation.mutate(currentAnswers, {
+            onSuccess: () => setLastSaved(new Date())
+          });
+        }, 2000); // 2 seconds debounce
+      };
+    })(),
+    []
+  );
+
   const handleOptionChange = (questionId, option) => {
-    setAnswers(prev => ({ ...prev, [questionId]: option }));
+    const newAnswers = { ...answers, [questionId]: option };
+    setAnswers(newAnswers);
+    debouncedAutosave(newAnswers);
   };
 
   const handleSubmit = useCallback(async (e) => {

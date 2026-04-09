@@ -7,7 +7,7 @@ const MainLayout = ({ children }) => {
     <div className="layout-container">
       <Navbar />
       <Sidebar />
-      <main className="main-layout">
+      <main className="main-layout fade-in">
         <div className="content-area">
           {children}
         </div>

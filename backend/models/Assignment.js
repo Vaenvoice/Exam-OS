@@ -15,6 +15,11 @@ const Assignment = sequelize.define('Assignment', {
     type: DataTypes.UUID,
     allowNull: false
   }
+}, {
+  indexes: [
+    { fields: ['ExamId'] },
+    { fields: ['UserId'] }
+  ]
 });
 
 module.exports = Assignment;

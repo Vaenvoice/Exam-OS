@@ -34,6 +34,10 @@ const User = sequelize.define('User', {
     defaultValue: false
   }
 }, {
+  indexes: [
+    { fields: ['role'] },
+    { fields: ['isApproved'] }
+  ],
   hooks: {
     beforeCreate: async (user) => {
       if (user.password) {
