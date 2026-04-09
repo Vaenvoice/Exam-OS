@@ -2,9 +2,20 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
 // Set default base URL for API calls
-const apiUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
-// Aggressively strip anything from /api onwards because our code adds it in each individual request
-axios.defaults.baseURL = apiUrl.includes('/api') ? apiUrl.split('/api')[0] : apiUrl;
+const rawUrl = (import.meta.env.VITE_API_BASE_URL || '').trim();
+let normalizedUrl = rawUrl;
+
+// Ensure it starts with https:// if it looks like a domain and lacks it
+if (normalizedUrl && !normalizedUrl.startsWith('http')) {
+  normalizedUrl = `https://${normalizedUrl}`;
+}
+
+// Aggressively strip trailing slashes and /api because our routes add it
+if (normalizedUrl.endsWith('/')) normalizedUrl = normalizedUrl.slice(0, -1);
+if (normalizedUrl.endsWith('/api')) normalizedUrl = normalizedUrl.slice(0, -4);
+
+axios.defaults.baseURL = normalizedUrl;
+console.log('[API] Initialized with Base URL:', axios.defaults.baseURL);
 
 const AuthContext = createContext();
 
