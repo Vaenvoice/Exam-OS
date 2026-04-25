@@ -168,5 +168,4 @@ Register the first user as an **Admin** through the registration page. Subsequen
 
 ## 📄 License
 
-
 ISC
